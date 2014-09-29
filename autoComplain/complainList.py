@@ -9,8 +9,10 @@ from complainDetail import *
 
 timeout = 10
 socket.setdefaulttimeout(timeout)
-MaxBuffer = 20 # sync page update
-buffer = 0
+
+#sys.setdefaultencoding('utf8')
+
+
 def getPageNum():
     pageNum = 0
     tryNum = 3
@@ -77,9 +79,9 @@ def insertDb(table, vlist):
     published=vlist[7]
     status=vlist[8]	
     sql = "insert into " + table + "(num,brand,family,version,abstract,detailUrl,failure,published,status,collectTime) values " + "('%s','%s','%s','%s','%s','%s','%s','%s','%s', now())"%(num,brand,family,version,abstract,detailUrl,failure,published,status)  
-    #print sql    
     cur.execute("set names gbk")   
-    cur.execute(sql.encode("gbk"))   
+    cur.execute(sql.encode("gbk"))
+    #cur.execute(sql)    
     conn.commit()
 	 
 def getFailureTye(str, failureType):
@@ -122,8 +124,7 @@ def fetchComplainList(uri):
                 vlist = []
                 tdList = trList[i].find_all('td')
                 num  = tdList[0].string                
-                if exitsInDb(num) == 0:
-                    print "continue"
+                if exitsInDb(num) == 0:                    
                     #continue                
                     vlist.append(num) # num            
                     vlist.append(tdList[1].string) # brand         
@@ -165,7 +166,7 @@ if __name__ == "__main__":
     if pageNum == -1: exit(-2)
     print "total page:", pageNum
     #pageNum = 2
-    for p in range(1501,pageNum):
+    for p in range(1,pageNum):
         print "page:", p
         complainListUri = "http://www.12365auto.com/zlts/0-0-0-0-0-0_0-0-%s.shtml"%p
         fetchComplainList(complainListUri)    

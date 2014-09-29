@@ -1,3 +1,6 @@
+-- create database autocomplain;
+-- mysql -u root -p --database autocomplain < schema.sql
+
 SET SESSION storage_engine = "InnoDB";
 
 -- beijing time_zone
