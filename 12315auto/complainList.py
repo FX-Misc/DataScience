@@ -10,9 +10,6 @@ from complainDetail import *
 timeout = 10
 socket.setdefaulttimeout(timeout)
 
-#sys.setdefaultencoding('utf8')
-
-
 def getPageNum():
     pageNum = 0
     tryNum = 3
@@ -39,7 +36,7 @@ def getPageNum():
     return int(pageNum)
 
 def getMaxNumOfComplain():
-    conn=MySQLdb.connect(host='localhost',user='root',passwd='',port=3306, db="autocomplain")
+    conn=MySQLdb.connect(host='localhost',user='root',passwd='fnst1234',port=3306, db="autocomplain")
     cur=conn.cursor()
     sql = "select max(num) from complainList"    
     cur.execute(sql)
@@ -52,22 +49,20 @@ def getMaxNumOfComplain():
         return 0
  
 def exitsInDb(num):
-    conn=MySQLdb.connect(host='localhost',user='root',passwd='',port=3306, db="autocomplain")
+    conn=MySQLdb.connect(host='localhost',user='root',passwd='fnst1234',port=3306, db="autocomplain")
     cur=conn.cursor()
     sql = "select num from complainList where num=%s"%num    
     cur.execute(sql)
     conn.commit();
-    num = cur.fetchone()
-    #print num        
+    num = cur.fetchone()            
     if num: 
         print "exits"    
         return 1 # exits
     else: 
-        #print "not exits"
         return 0 # not exits
 
 def insertDb(table, vlist):
-    conn=MySQLdb.connect(host='localhost',user='root',passwd='',port=3306, db="autocomplain")
+    conn=MySQLdb.connect(host='localhost',user='root',passwd='fnst1234',port=3306, db="autocomplain", charset="utf8")
     cur=conn.cursor()
     num=int(vlist[0])
     brand=vlist[1]	
@@ -79,9 +74,9 @@ def insertDb(table, vlist):
     published=vlist[7]
     status=vlist[8]	
     sql = "insert into " + table + "(num,brand,family,version,abstract,detailUrl,failure,published,status,collectTime) values " + "('%s','%s','%s','%s','%s','%s','%s','%s','%s', now())"%(num,brand,family,version,abstract,detailUrl,failure,published,status)  
-    cur.execute("set names gbk")   
-    cur.execute(sql.encode("gbk"))
-    #cur.execute(sql)    
+    #cur.execute("set names utf8")   
+    #cur.execute(sql.encode("gbk"))
+    cur.execute(sql)    
     conn.commit()
 	 
 def getFailureTye(str, failureType):
@@ -163,11 +158,15 @@ if __name__ == "__main__":
     failureType = fetchFailureTye(failureTypeUri)
     if failureType == -1: exit(-1)	
     pageNum = getPageNum()
+    pageBegin = 1    
     if pageNum == -1: exit(-2)
-    print "total page:", pageNum
-    #pageNum = 2
-    for p in range(1,pageNum):
-        print "page:", p
-        complainListUri = "http://www.12365auto.com/zlts/0-0-0-0-0-0_0-0-%s.shtml"%p
-        fetchComplainList(complainListUri)    
+    print "total page:", pageNum    
+    while pageBegin < pageNum:
+        for p in range(pageBegin, pageNum+1):
+            print "page:", p
+            complainListUri = "http://www.12365auto.com/zlts/0-0-0-0-0-0_0-0-%s.shtml"%p
+            fetchComplainList(complainListUri)
+        pageBegin = pageNum
+        pageNum = getPageNum()
+        if pageNum == -1: exit(-2)       
     print "Auto Complain Collection Updated"
